@@ -6,5 +6,5 @@ type IconProps = {
 };
 
 export const Icon: React.FC<IconProps> = ({ children }) => (
-  <div className="w-12">{children}</div>
+  <div className="w-18">{children}</div>
 );

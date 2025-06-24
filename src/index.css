@@ -55,6 +55,7 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  background-color: var(--color-blue-100);
 }
 
 h1 {

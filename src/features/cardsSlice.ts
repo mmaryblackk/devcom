@@ -1,6 +1,13 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchData } from "../helpers/fetchData";
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
 import type { Card } from "@/types/Card";
+import {
+  loadFromLocalStorage,
+  saveToLocalStorage,
+} from "@/helpers/handleLocalStorage";
 
 type ProductsState = {
   cards: Card[];
@@ -17,7 +24,12 @@ const initialState: ProductsState = {
 export const cardsSlice = createSlice({
   name: "cards",
   initialState,
-  reducers: {},
+  reducers: {
+    add: (state, action: PayloadAction<Card>) => {
+      state.cards.push(action.payload);
+      saveToLocalStorage(state.cards);
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(init.pending, (state) => {
       state.loading = true;
@@ -37,7 +49,8 @@ export const cardsSlice = createSlice({
 });
 
 export default cardsSlice.reducer;
+export const { add } = cardsSlice.actions;
 
 export const init = createAsyncThunk("cards/fetch", () => {
-  return fetchData<Card[]>("/api/cards.json");
+  return loadFromLocalStorage<Card[]>();
 });

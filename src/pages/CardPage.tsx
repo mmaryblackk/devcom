@@ -8,5 +8,9 @@ export const CardPage = () => {
   useEffect(() => {
     dispatch(initCards());
   }, [dispatch]);
-  return <CardTable />;
+  return (
+    <>
+      <CardTable />
+    </>
+  );
 };
