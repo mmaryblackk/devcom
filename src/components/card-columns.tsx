@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
-import { Check, Trash } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Trash } from "lucide-react";
 
 export const getCardColumns = (
   onSetDefault: (id: string) => void,
@@ -15,7 +15,18 @@ export const getCardColumns = (
 ): ColumnDef<Card>[] => [
   {
     accessorKey: "brand",
-    header: "Brand",
+    header: ({ column }) => (
+      <div className="flex justify-center">
+        <button
+          className="flex items-center gap-1 cursor-pointer"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Brand
+          {column.getIsSorted() === "asc" && <ArrowUp />}
+          {column.getIsSorted() === "desc" && <ArrowDown />}
+        </button>
+      </div>
+    ),
     cell: ({ row }) => (
       <div className="flex justify-center">
         <img
