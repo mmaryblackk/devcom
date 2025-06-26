@@ -6,7 +6,7 @@ export const NotFoundPage = () => {
 
   return (
     <div className="flex flex-col justify-center items-center gap-8">
-      <h1>Oooopss... Page Not Found 🥺</h1>
+      <h1 className="text-center">Oooopss... Page Not Found 🥺</h1>
       <Button
         className="w-48 cursor-pointer bg-gray-800"
         onClick={() => navigate("/")}
