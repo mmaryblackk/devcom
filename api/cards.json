@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1",
+    "brand": "visa",
+    "last4": "4242",
+    "isDefault": true
+  },
+  {
+    "id": "2",
+    "brand": "mastercard",
+    "last4": "6789",
+    "isDefault": false
+  },
+  {
+    "id": "3",
+    "brand": "amex",
+    "last4": "1122",
+    "isDefault": false
+  }
+]
