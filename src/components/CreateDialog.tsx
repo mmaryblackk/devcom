@@ -171,7 +171,7 @@ const CreateCardDialog: React.FC = () => {
           <div>
             <label className="block mb-1">CVC</label>
             <input
-              type="text"
+              type="password"
               placeholder="***"
               value={cvcNumber}
               onChange={(e) => {
