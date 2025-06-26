@@ -1,6 +1,7 @@
 import CardFilter from "@/components/CardFilter";
 import CardTable from "@/components/CardTable";
 import CreateCardDialog from "@/components/CreateDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { init, remove, setDefault } from "@/features/cardsSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/hooks";
 import { useEffect, useState } from "react";
@@ -25,7 +26,12 @@ export const CardPage = () => {
       </div>
       <>
         {loading ? (
-          <p>Loading...</p>
+          <div className="space-y-2">
+            <Skeleton className="h-10 w-full rounded-md" />
+            <Skeleton className="h-12 w-full rounded-md" />
+            <Skeleton className="h-12 w-full rounded-md" />
+            <Skeleton className="h-12 w-full rounded-md" />
+          </div>
         ) : filtered.length === 0 ? (
           <p>No cards found</p>
         ) : (
