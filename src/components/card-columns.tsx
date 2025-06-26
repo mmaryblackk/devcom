@@ -31,7 +31,7 @@ export const getCardColumns = (
       <div className="flex justify-center">
         <img
           className="w-10"
-          src={`/icons/${row.getValue("brand")}.svg`}
+          src={`${import.meta.env.BASE_URL}icons/${row.getValue("brand")}.svg`}
           alt={row.getValue("brand")}
         />
       </div>
