@@ -3,19 +3,16 @@ import {
   createSlice,
   type PayloadAction,
 } from "@reduxjs/toolkit";
+import { fetchData } from "../helpers/fetchData";
 import type { Card } from "@/types/Card";
-import {
-  loadFromLocalStorage,
-  saveToLocalStorage,
-} from "@/helpers/handleLocalStorage";
 
-type ProductsState = {
+type CardsState = {
   cards: Card[];
   loading: boolean;
   error: boolean;
 };
 
-const initialState: ProductsState = {
+const initialState: CardsState = {
   cards: [],
   loading: false,
   error: false,
@@ -27,12 +24,21 @@ export const cardsSlice = createSlice({
   reducers: {
     add: (state, action: PayloadAction<Card>) => {
       state.cards.push(action.payload);
-      saveToLocalStorage(state.cards);
+    },
+    setDefault: (state, action: PayloadAction<string>) => {
+      state.cards = state.cards.map((card) => ({
+        ...card,
+        isDefault: card.id === action.payload,
+      }));
+    },
+    remove: (state, action: PayloadAction<string>) => {
+      state.cards = state.cards.filter((card) => card.id !== action.payload);
     },
   },
   extraReducers: (builder) => {
     builder.addCase(init.pending, (state) => {
       state.loading = true;
+      state.error = false;
     });
 
     builder.addCase(init.fulfilled, (state, action) => {
@@ -49,8 +55,8 @@ export const cardsSlice = createSlice({
 });
 
 export default cardsSlice.reducer;
-export const { add } = cardsSlice.actions;
+export const { add, setDefault, remove } = cardsSlice.actions;
 
 export const init = createAsyncThunk("cards/fetch", () => {
-  return loadFromLocalStorage<Card[]>();
+  return fetchData<Card[]>("/api/cards.json");
 });

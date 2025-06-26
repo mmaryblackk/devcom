@@ -1,10 +1,6 @@
-import { useAppSelector } from "@/hooks/hooks";
-import { CardActions } from "../CardActions";
-import { Icon } from "../CardIcons/Icon";
+import { useAppDispatch, useAppSelector } from "@/hooks/hooks";
 import { NewCard } from "../NewCard";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import {
   Table,
   TableBody,
@@ -13,11 +9,18 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { CardRow } from "./CardRow";
+import type { Card } from "@/types/Card";
+import { add } from "@/features/cardsSlice";
 
 const HEADERS = ["Brand", "Last 4", "Default", "Action"];
 
 export const CardTable = () => {
   const { cards } = useAppSelector((state) => state.cards);
+  const dispatch = useAppDispatch();
+
+  const addNewCard = (card: Card) => dispatch(add(card));
+
   return (
     <div className="bg-white p-6 shadow flex flex-col gap-2">
       <div className="flex justify-between items-center mb-5">
@@ -36,20 +39,7 @@ export const CardTable = () => {
         </TableHeader>
         <TableBody>
           {cards.length > 0 ? (
-            cards.map((card) => (
-              <TableRow key={card.id}>
-                <TableCell className="min-w-24">
-                  <Icon>
-                    <img src={`/icons/${card.brand}.svg`} alt={card.brand} />
-                  </Icon>
-                </TableCell>
-                <TableCell>{card.last4}</TableCell>
-                <TableCell>{card.isDefault && <Default />}</TableCell>
-                <TableCell>
-                  <CardActions />
-                </TableCell>
-              </TableRow>
-            ))
+            cards.map((card) => <CardRow key={card.id} card={card} />)
           ) : (
             <TableRow>
               <TableCell className="py-4 text-lg">No cards added</TableCell>
@@ -58,19 +48,8 @@ export const CardTable = () => {
         </TableBody>
       </Table>
       <div className="flex justify-end">
-        <NewCard />
+        <NewCard onSubmit={addNewCard} />
       </div>
     </div>
   );
 };
-
-const Default = () => (
-  <RadioGroup defaultValue="default">
-    <div className="flex items-center space-x-2">
-      <RadioGroupItem value="default" id="default" />
-      <Label htmlFor="default" className="text-2xl">
-        Default
-      </Label>
-    </div>
-  </RadioGroup>
-);

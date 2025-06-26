@@ -1,4 +1,4 @@
-import { useState } from "react";
+import type { Card } from "@/types/Card";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -11,125 +11,143 @@ import {
 } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { cardBrand } from "@/helpers/cardBrand";
-import { useAppDispatch, useAppSelector } from "@/hooks/hooks";
-import type { Card } from "@/types/Card";
-import { add } from "@/features/cardsSlice";
-import { cardSchema, type CardFormData } from "@/helpers/cardSchema";
+import { useState } from "react";
+import { checkCardBrand } from "@/helpers/checkCardBrand";
 
-export const NewCard = () => {
-  const { cards } = useAppSelector((state) => state.cards);
-  const dispatch = useAppDispatch();
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof CardFormData, string>>
-  >({});
+type Props = {
+  onSubmit: (card: Card) => void;
+};
+
+export const NewCard: React.FC<Props> = ({ onSubmit }) => {
   const [cardNumber, setCardNumber] = useState("");
-  const [date, setDate] = useState("");
+  const [errorCard, setErrorCard] = useState(false);
+
+  const [date, setDate] = useState({
+    month: "",
+    year: "",
+  });
+  const [errorDate, setDateError] = useState({
+    errorMonth: false,
+    errorYear: false,
+  });
   const [cvc, setCvc] = useState("");
+  const [errorCvc, setErrorCvc] = useState(false);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const formData: CardFormData = {
-      cardNumber,
-      date,
-      cvc,
-    };
+    const brand = checkCardBrand(cardNumber);
 
-    const result = cardSchema.safeParse(formData);
+    const cardNumberValid = cardNumber.trim();
+    const monthValid = date.month.trim();
+    const yearValid = date.year.trim();
+    const cvcValid = cvc.trim();
 
-    if (!result.success) {
-      const fieldErrors: Partial<Record<keyof CardFormData, string>> = {};
-      result.error.errors.forEach((err) => {
-        const field = err.path[0] as keyof CardFormData;
-        fieldErrors[field] = err.message;
-      });
-      setErrors(fieldErrors);
+    setErrorCard(!cardNumberValid || !brand);
+    setDateError({
+      errorMonth: !monthValid,
+      errorYear: !yearValid,
+    });
+    setErrorCvc(!cvcValid);
+
+    if (!cardNumberValid || !brand || !monthValid || !yearValid || !cvcValid) {
       return;
     }
 
-    const brand = cardBrand(cardNumber);
-    if (brand === undefined) return;
-
-    const newCard: Card = {
-      id: String(cards.length + 1),
+    onSubmit({
+      id: "0",
       brand,
       last4: cardNumber.slice(-4),
       isDefault: false,
-    };
-    dispatch(add(newCard));
+    });
+
     setCardNumber("");
-    setDate("");
+    setDate({ month: "", year: "" });
     setCvc("");
-    setErrors({});
+    setErrorCard(false);
+    setDateError({ errorMonth: false, errorYear: false });
+    setErrorCvc(false);
   };
 
   return (
     <Dialog>
       <form onSubmit={handleSubmit}>
         <DialogTrigger asChild>
-          <Button variant="outline" className="!cursor-pointer text-lg">
+          <Button
+            variant="default"
+            size="lg"
+            className="!cursor-pointer text-lg"
+          >
             Add New Card
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add New Card</DialogTitle>
+            <DialogTitle className="text-2xl">Add New Card</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-3">
-              <Label htmlFor="card-number">Name</Label>
-              <div className="relative">
-                <Input
-                  id="card-number"
-                  name="card-number"
-                  placeholder="1234 1234 1234 1234"
-                  className="pr-10"
-                  value={cardNumber}
-                  onChange={(event) => setCardNumber(event.target.value)}
-                  required
-                />
-                {errors.cardNumber && (
-                  <p className="text-red-500 text-sm">{errors.cardNumber}</p>
+              <Label htmlFor="card-number" className="font-semibold text-lg">
+                Card Number
+              </Label>
+              <Input
+                id="card-number"
+                name="card-number"
+                placeholder="XXXX XXXX XXXX XXXX"
+                value={cardNumber}
+                onChange={(e) => {
+                  let val = e.target.value.replace(/\D/g, "");
+                  val = val.match(/.{1,4}/g)?.join(" ") || val;
+                  setCardNumber(val);
+                }}
+              />
+              {errorCard && <p>Error card number</p>}
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label className="font-semibold text-lg">Expiraion Date</Label>
+              <div className="flex flex-row gap-3">
+                <div className="grid gap-2 w-24">
+                  <Label htmlFor="month">Month</Label>
+                  <Input
+                    id="month"
+                    name="month"
+                    placeholder="MM"
+                    value={date.month}
+                    onChange={(event) =>
+                      setDate({ ...date, month: event.target.value })
+                    }
+                  />
+                </div>
+                <div className="grid gap-2 w-24">
+                  <Label htmlFor="year">Year</Label>
+                  <Input
+                    id="year"
+                    name="year"
+                    placeholder="YY"
+                    value={date.year}
+                    onChange={(event) =>
+                      setDate({ ...date, year: event.target.value })
+                    }
+                  />
+                </div>
+                {(errorDate.errorMonth || errorDate.errorYear) && (
+                  <p>Error date</p>
                 )}
-                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
-                  {cardNumber && (
-                    <img
-                      src={`/icons/${cardBrand(cardNumber)}.svg`}
-                      width="20px"
-                    />
-                  )}
-                </span>
               </div>
             </div>
-            <div className="grid gap-3">
-              <Label htmlFor="expiration-date">Expiration Date</Label>
-              <Input
-                id="expiration-date"
-                name="expiration-date"
-                placeholder="MM / YY"
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-                required
-              />
-              {errors.cardNumber && (
-                <p className="text-red-500 text-sm">{errors.date}</p>
-              )}
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="cvc">CVC</Label>
+            <div className="grid gap-2 w-16">
+              <Label htmlFor="cvc" className="font-semibold text-lg">
+                CVC
+              </Label>
               <Input
                 id="cvc"
                 name="cvc"
-                placeholder="***"
                 type="password"
+                placeholder="***"
                 value={cvc}
                 onChange={(event) => setCvc(event.target.value)}
-                required
               />
-              {errors.cardNumber && (
-                <p className="text-red-500 text-sm">{errors.cvc}</p>
-              )}
+              {errorCvc && <p>Error cvc</p>}
             </div>
           </div>
           <DialogFooter>
@@ -139,7 +157,7 @@ export const NewCard = () => {
               </Button>
             </DialogClose>
             <Button type="submit" className="!cursor-pointer">
-              Add Card
+              Add New Card
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,4 +1,4 @@
-import { CardTable } from "@/components/CardTable";
+import { CardTable } from "@/components/CardTable/CardTable";
 import { init as initCards } from "@/features/cardsSlice";
 import { useAppDispatch } from "@/hooks/hooks";
 import { useEffect } from "react";
