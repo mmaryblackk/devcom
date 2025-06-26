@@ -17,11 +17,13 @@ export const getCardColumns = (
     accessorKey: "brand",
     header: "Brand",
     cell: ({ row }) => (
-      <img
-        className="w-10"
-        src={`/icons/${row.getValue("brand")}.svg`}
-        alt={row.getValue("brand")}
-      />
+      <div className="flex justify-center">
+        <img
+          className="w-10"
+          src={`/icons/${row.getValue("brand")}.svg`}
+          alt={row.getValue("brand")}
+        />
+      </div>
     ),
   },
   {
